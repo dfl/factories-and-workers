@@ -1,0 +1,96 @@
+This plugin is to help anyone who needs to test with a populated database, but doesn't want to use fixtures. In my particular case, I am spec'ing out a custom finder method 'find(:salable)' and cannot think of any other way to do it other than created some salable and non-salable items and searching for them.
+
+The Factory
+===========
+
+The Factory is a module that has two methods for each model named 'create_#{model}' and 'valid_#{model}_attributes'. The methods create objects in a valid state, with default attributes and associations. When using the 'create_' methods, you can pass in a hash to override any of the default attributes if needed. You must create a file named 'factories.rb' in either the spec or test directory in your project to declare factory methods and default attributes.
+
+An example factories.rb file:
+
+  factory :user, { :name => "default name" }
+
+This would define a method named 'create_user' and 'valid_user_attributes' to be available in any Object in the project. You could call create_user({ :name => "a different name" }) if you wanted to override the default valid attributes.
+
+A more complicated example:
+
+  factory :role, { :title => "role title" }
+  
+  factory :user, {
+    :name => "user name",
+    :login => "login",
+    :email => "email@email.com",
+    :role => lambda { create_role({}) }
+  }
+  
+  factory :order, {
+    :quantity => 5,
+    :price => 500,
+    :user => lambda { create_user({}) }
+  }
+
+This will make nine methods: build_role, create_role, valid_role_attributes, build_user, create_user, valid_user_attributes, buile_order, create_order, and valid_order_attributes
+
+Take note of some things:
+
+*    To create a belongs_to association, I am creating the parent object right in the factory declaration. You could just use an id, but this is guaranteed to have the correct id when it's done.
+
+*    I used lambda for the create_role and create_user. If you don't use lambda, it will create them during the factory declaration. The point of all this factory stuff is so that you don't hit your database until you need to, so packing it into a lambda will call it JIT when the create_user or create_order method is used. You can put any ruby code you want in a lambda block in any attribute and it will be ran when the create_ method is called. This might be useful if you want Time.now to not be the time the test started, but the time the create_ method was called.
+
+*    I called the methods with an empty hash ({}). I hate this, but I have not found a way around it. The way I am using define_method there is no way to declare a default for the argument. If you do not send in an argument, you will get a warning during the test or spec. I am looking into fixing this.
+
+
+The Factory idea is inspired completely by:
+  http://www.dcmanges.com/blog/38
+
+
+The FactoryWorker
+=================
+
+The FactoryWorker functionality is not finished yet, but it works well enough.
+
+If you create a file named 'factory_workers.rb' in either your spec or test directory, you can define snippets of code that can be ran at anytime, anywhere in your tests (this may not be true in the future, I may limit where it can be run, iono). 
+
+A factory worker is defined as so:
+
+  factory_worker :name do
+    # any ruby code you want
+  end
+
+Then, in your tests you can call 'worker :name' to run the ruby code contained in the worker.
+
+My current use for this is populating the database with salable and non-salable objects and looks something like this:
+
+  factory_worker :salable_and_non_salable_products do
+    create_variant({ :sku => "1" })
+    create_variant({ :sku => "2" })
+    create_variant({ :sku => "3", :in_stock => false })
+    create_variant({ :sku => "4", :in_stock => false })
+  end
+
+The 'create_variant' method is provided by my factory setup and actually creates a valid product with associated colors, sizes, and other options that I need. Now, I have 4 products in the database, 2 are in stock and 2 are not. So, in my test: find(:salable).length.should == 2
+
+And it does.
+
+You can chain workers together like this:
+
+  factory_worker :first do
+    puts "I am first"
+  end
+  
+  factory_worker :second => :first do
+    puts "I am second"
+  end
+  
+  factory_worker :third => :second do
+    puts "I am third"
+  end
+
+If you call 'worker :third', it should output:
+
+I am first
+I am second
+I am third
+
+This chaining functionality may not work 100% yet.
+
+Also, I am having some issues with my tests not clearing out the database after each test. I am looking into it and should have that cleared up soon.
