@@ -1,6 +1,6 @@
 require 'active_support/core_ext'  # for returning()
-module Factory;end
 
+module Factory; end
 class Object
   include Factory
 
@@ -12,7 +12,7 @@ end
 
 class FactoryBuilder
   def initialize( factory, default_attrs={} )
-    raise "I don't know how to build '#{factory.inspect}'" unless [ Symbol, String ].include?( factory.class )
+    ar_klass = ActiveRecord.const_get( factory.to_s.classify )
 
     # make the valid attributes method      
     valid_attrs_method = :"valid_#{factory}_attributes"
@@ -20,19 +20,26 @@ class FactoryBuilder
     Factory.send :define_method, valid_attrs_method do |*args|
       case args.first
       when Symbol  # only fetch a single attribute
-        value = default_attrs[ args.first ]
-        value = value.call if value.is_a?( Proc ) #evaluate lambda if needed
+        returning default_attrs[ args.first ] do |value|
+          value = value.call if value.is_a?( Proc )      # evaluate lambda if needed
+        end
       when nil, Hash
         attrs = default_attrs.symbolize_keys
         overrides = args.first
-        attrs.merge!( overrides.symbolize_keys ) if overrides  # override default values if needed
+        attrs.merge!( overrides.symbolize_keys ) if overrides  # override default values as needed
         attrs.each_pair do |key, value|
-          attrs[key] = value.call if value.is_a?(Proc) # evaluate lambda if needed
+          if overrides && overrides.keys.include?(:"#{key}_id")
+            attrs.delete(key) # if :#{model}_id is overridden, then remove :#{model} and don't evaluate the lambda block
+          else
+            attrs[key] = value.call if value.is_a?(Proc) # evaluate lambda if needed
+          end
         end
       end       
     end
+    
+    # alias default_*_attributes to valid_*_attributes
+    Factory.send :alias_method, valid_attrs_method.to_s.gsub('valid','default').to_sym, valid_attrs_method
 
-    ar_klass = ActiveRecord.const_get( factory.to_s.classify )
 
     # make the create method
     Factory.send :define_method, :"create_#{factory}" do |*args|

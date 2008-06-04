@@ -1,4 +1,4 @@
 * 6/03/08 -- wrote some tests and checked into github.com
 * 3/23/08 -- David Lowenfels refactored the FactoryBuilder code for default arguments to empty hash,
               and added the build_#{object} method and magic pens.
-* 5/27/07 -- Originally written by "myobie" at http://code.google.com/p/factories-and-workers/
+* 5/27/07 -- Originally code by Nathan Herald at http://code.google.com/p/factories-and-workers/
