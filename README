@@ -19,13 +19,13 @@ A more complicated example:
     :name => "user name",
     :login => "login",
     :email => "email@email.com",
-    :role => lambda { create_role({}) }
+    :role => lambda { create_role }
   }
   
   factory :order, {
     :quantity => 5,
     :price => 500,
-    :user => lambda { create_user({}) }
+    :user => lambda { create_user }
   }
 
 This will make nine methods: build_role, create_role, valid_role_attributes, build_user, create_user, valid_user_attributes, buile_order, create_order, and valid_order_attributes
@@ -35,8 +35,6 @@ Take note of some things:
 *    To create a belongs_to association, I am creating the parent object right in the factory declaration. You could just use an id, but this is guaranteed to have the correct id when it's done.
 
 *    I used lambda for the create_role and create_user. If you don't use lambda, it will create them during the factory declaration. The point of all this factory stuff is so that you don't hit your database until you need to, so packing it into a lambda will call it JIT when the create_user or create_order method is used. You can put any ruby code you want in a lambda block in any attribute and it will be ran when the create_ method is called. This might be useful if you want Time.now to not be the time the test started, but the time the create_ method was called.
-
-*    I called the methods with an empty hash ({}). I hate this, but I have not found a way around it. The way I am using define_method there is no way to declare a default for the argument. If you do not send in an argument, you will get a warning during the test or spec. I am looking into fixing this.
 
 
 The Factory idea is inspired completely by:
