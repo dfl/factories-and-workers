@@ -1,16 +1,8 @@
 require File.expand_path(File.dirname(__FILE__) + "/_helper")
 
+require 'factories'
+
 class FactoryBuilderTest < Test::Unit::TestCase
-
-  factory :monkey, {
-    :name => "George"
-  }
-
-  factory :pirate, {
-    :catchphrase => "Ahhrrrr, Matey!",
-    :monkey      => lambda{ create_monkey }
-  }
-
   def metaclass; class << self; self; end; end
 
   def test_unknown_factory_raises_error
@@ -47,7 +39,9 @@ class FactoryBuilderTest < Test::Unit::TestCase
 
   def test_build_pirate
     assert_difference "Pirate.count", 0 do
-      build_pirate
+      assert_difference "Monkey.count", 0 do
+        build_pirate
+      end
     end
   end
 
@@ -66,9 +60,12 @@ class FactoryBuilderTest < Test::Unit::TestCase
   def test_create_pirate_evaluates_lambda
     assert_difference "Pirate.count", 1 do
       assert_difference "Monkey.count", 1 do
-        create_pirate
+        @pirate = create_pirate
       end
     end
+    assert_equal @pirate.created_on.to_s, 1.day.ago.to_s
+    sleep 1
+    assert_not_equal create_pirate.updated_on.to_s, @pirate.updated_on.to_s
   end
   
   def test_overridden_attributes

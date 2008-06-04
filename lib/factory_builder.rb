@@ -31,7 +31,14 @@ class FactoryBuilder
           if overrides && overrides.keys.include?(:"#{key}_id")
             attrs.delete(key) # if :#{model}_id is overridden, then remove :#{model} and don't evaluate the lambda block
           else
-            attrs[key] = value.call if value.is_a?(Proc) # evaluate lambda if needed
+            attrs[key] = case value
+            when Proc
+              value.call  # evaluate lambda
+            when :belongs_to_model  # create or build model, depending on calling context
+              self.class.send "#{args[1] || :create }_#{key}"              
+            else
+              value
+            end
           end
         end
       end       
@@ -43,14 +50,14 @@ class FactoryBuilder
 
     # make the create method
     Factory.send :define_method, :"create_#{factory}" do |*args|
-      returning ar_klass.create!( self.send( valid_attrs_method, *args ) ) do |obj|
+      returning ar_klass.create!( self.send( valid_attrs_method, args.first, :create ) ) do |obj|
         yield obj if block_given?  # magic pen
       end
     end
 
     # make the build method
     Factory.send :define_method, :"build_#{factory}" do |*args|
-      returning ar_klass.new( self.send( valid_attrs_method, *args ) ) do |obj|
+      returning ar_klass.new( self.send( valid_attrs_method, args.first, :build ) ) do |obj|
         yield obj if block_given?  # magic pen
       end
     end

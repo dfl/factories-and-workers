@@ -1,16 +1,20 @@
-This plugin is to help anyone who needs to test with a populated database, but doesn't want to use fixtures. In my particular case, I am spec'ing out a custom finder method 'find(:salable)' and cannot think of any other way to do it other than created some salable and non-salable items and searching for them.
+=The Factory
 
-The Factory
-===========
+The Factory is a module that has two methods for each model named +create_model+ and +valid_model_attributes+.
+The methods create objects in a valid state, with default attributes and associations. When using the +create_model+ methods, you can pass in a hash to override any of the default attributes if needed.
+Typically, you should create a file named 'factories.rb' in either the spec or test directory in your project to declare factory methods and default attributes.
+Then require it from test_helper.rb
 
-The Factory is a module that has two methods for each model named 'create_#{model}' and 'valid_#{model}_attributes'. The methods create objects in a valid state, with default attributes and associations. When using the 'create_' methods, you can pass in a hash to override any of the default attributes if needed. You must create a file named 'factories.rb' in either the spec or test directory in your project to declare factory methods and default attributes.
 
 An example factories.rb file:
 
   factory :user, :name => "default name"
 
-This would define a method named 'create_user' and 'valid_user_attributes' to be available in any Object in the project. You could call create_user( :name => "a different name" ) if you wanted to override the default valid attributes.
-'build_user' is also available for those times that you don't want the object to be saved to the databse.
+This would define methods named +build_user+, +create_user+, and +valid_user_attributes+ to be available in any Object in the project.
+You could call
+  create_user( :name => "a different name" )
+if you wanted to override the default valid attributes.
+
 
 A more complicated example:
 
@@ -20,30 +24,39 @@ A more complicated example:
     :name => "user name",
     :login => "login",
     :email => "email@email.com",
-    :role => lambda { create_role }
+    :role => :belongs_to_model
+    :created_at => lambda { Time.now }
   }
   
   factory :order, {
     :quantity => 5,
     :price => 500,
-    :user => lambda { create_user }
+    :user => :belongs_to_model
   }
 
-This will make nine methods: build_role, create_role, valid_role_attributes, build_user, create_user, valid_user_attributes, buile_order, create_order, and valid_order_attributes
+This will make nine methods:
++build_role+, +create_role+, +valid_role_attributes+, +build_user+, +create_user+, +valid_user_attributes+, +build_order+, +create_order+, and +valid_order_attributes+
 
-Take note of some things:
++default_model_attributes+ is also available as an alias to +valid_model_attributes+.
 
-*    To create a belongs_to association, I am creating the parent object right in the factory declaration. You could just use an id, but this is guaranteed to have the correct id when it's done.
+Note that :created_at is passed a lambda block, which will be evaluated at object creation, rather than at factory definition.
 
-*    I used lambda for the create_role and create_user. If you don't use lambda, it will create them during the factory declaration. The point of all this factory stuff is so that you don't hit your database until you need to, so packing it into a lambda will call it JIT when the create_user or create_order method is used. You can put any ruby code you want in a lambda block in any attribute and it will be ran when the create_* method is called. This might be useful if you want Time.now to not be the time the test started, but the time the create_* method was called.
+A value of :belongs_to_model on an attribute adds logic to call +create_+ or +build_+, appropriately.
+For example:
++build_user+ will call :role => build_role, while +create_user+ will call :role => create_role.
++valid_user_attributes+ will call +build_role+.
+In this way, models are not saved to the database unnecessarily.
 
 
-The Factory idea is inspired completely by:
+Note that if you pass a foreign key attribute as a build or create override, the corresponding default object will not be constructed.
+For example:
+  create_user( :role_id => 1 ) # will not call create_role.
+
+The Factory idea was inspired completely by Dan Manges:
   http://www.dcmanges.com/blog/38
 
 
-The FactoryWorker
-=================
+=The FactoryWorker
 
 The FactoryWorker functionality is not finished yet, but it works well enough.
 
@@ -91,5 +104,3 @@ I am second
 I am third
 
 This chaining functionality may not work 100% yet.
-
-Also, I am having some issues with my tests not clearing out the database after each test. I am looking into it and should have that cleared up soon.
