@@ -1,5 +1,5 @@
 require 'active_support/core_ext'  # for returning()
-module Factory; end
+module Factory;end
 
 class Object
   include Factory
@@ -17,28 +17,33 @@ class FactoryBuilder
     # make the valid attributes method      
     valid_attrs_method = :"valid_#{factory}_attributes"
 
-    Factory.send :define_method, valid_attrs_method do
-      returning default_attrs.dup do |evaluated_attrs|
-        default_attrs.each_pair do |key, value|
-          evaluated_attrs[key] = value.call if value.is_a?(Proc)
+    Factory.send :define_method, valid_attrs_method do |*args|
+      case args.first
+      when Symbol  # only fetch a single attribute
+        value = default_attrs[ args.first ]
+        value = value.call if value.is_a?( Proc ) #evaluate lambda if needed
+      when nil, Hash
+        attrs = default_attrs.symbolize_keys
+        overrides = args.first
+        attrs.merge!( overrides.symbolize_keys ) if overrides  # override default values if needed
+        attrs.each_pair do |key, value|
+          attrs[key] = value.call if value.is_a?(Proc) # evaluate lambda if needed
         end
-      end
+      end       
     end
 
     ar_klass = ActiveRecord.const_get( factory.to_s.classify )
 
     # make the create method
     Factory.send :define_method, :"create_#{factory}" do |*args|
-      overridden_attrs = args.first || {} # default to empty hash if no args provided
-      returning ar_klass.create!( self.send( valid_attrs_method ).merge( overridden_attrs ) ) do |obj|  # default to empty hash if no args provided
+      returning ar_klass.create!( self.send( valid_attrs_method, *args ) ) do |obj|
         yield obj if block_given?  # magic pen
       end
     end
 
     # make the build method
     Factory.send :define_method, :"build_#{factory}" do |*args|
-      overridden_attrs = args.first || {} # default to empty hash if no args provided
-      returning ar_klass.new( self.send( valid_attrs_method ).merge( overridden_attrs) ) do |obj|
+      returning ar_klass.new( self.send( valid_attrs_method, *args ) ) do |obj|
         yield obj if block_given?  # magic pen
       end
     end

@@ -38,9 +38,9 @@ class FactoryBuilderTest < Test::Unit::TestCase
   def test_overridden_attributes
     @phil = create_monkey( :name => "Phil" )
     assert_not_equal valid_monkey_attributes(:name), @phil.name
-
+    
     assert_difference "Pirate.count", 0 do
-      assert_difference "Monkey.count", 1 do
+      assert_difference "Monkey.count", 0 do
         @pirate = build_pirate( :monkey => @phil, :catchphrase => "chunky bacon!" )
       end
     end
@@ -49,5 +49,12 @@ class FactoryBuilderTest < Test::Unit::TestCase
     assert_equal "George", build_pirate.monkey.name
   end
   
+
+  # TODO
+  # def test_overridden_attribute_id
+  #   assert_difference "Monkey.count", 0 do
+  #     @pirate = build_pirate( :monkey_id => 1 )
+  #   end    
+  # end
   
 end
