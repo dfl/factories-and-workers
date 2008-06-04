@@ -1,3 +1,4 @@
+require 'active_support/core_ext'  # for returning()
 module Factory; end
 
 class Object
@@ -6,11 +7,6 @@ class Object
   def factory( factory, default_attributes={} )
     FactoryBuilder.new( factory, default_attributes )
   end
-  
-  def returning(value)
-    yield(value)
-    value
-  end
 
 end
 
@@ -18,7 +14,7 @@ class FactoryBuilder
   def initialize( factory, default_attributes={} )
     case factory
     when Symbol, String
-      # @factory = factory.to_s
+      factory = factory.to_s
     else
       raise "I don't know how to build '#{factory.inspect}'"
     end
@@ -33,22 +29,22 @@ class FactoryBuilder
     end
 
     # make the create method
-    Factory.module_eval %Q{
-      def create_#{factory}( attributes={} )
-        returning obj = #{factory.to_s.classify}.create!( valid_#{factory}_attributes.merge( attributes ) ) do
-          yield obj if block_given?
-        end
+    Factory.send :define_method, :"create_#{factory}" do |*args|
+      ar_klass = ActiveRecord.const_get( factory.to_s.classify )
+      valid_attrs = self.send(:"valid_#{factory}_attributes")
+      returning obj = ar_klass.create!( valid_attrs.merge( args.first || {} ) ) do  # default to empty hash if no args provided
+        yield obj if block_given?  # magic pen
       end
-    }
+    end
 
     # make the build method
-    Factory.module_eval %Q{
-        def build_#{factory}( attributes={} )
-          returning obj = #{factory.to_s.classify}.new( valid_#{factory}_attributes.merge( attributes ) ) do
-            yield obj if block_given?
-          end
-        end
-      }
+    Factory.send :define_method, :"build_#{factory}" do |*args|
+      ar_klass = ActiveRecord.const_get( factory.to_s.classify )
+      valid_attrs = self.send(:"valid_#{factory}_attributes")
+      returning obj = ar_klass.new( valid_attrs.merge( args.first || {} ) ) do  # default to empty hash if no args provided
+        yield obj if block_given?  # magic pen
+      end
+    end
 
   end #initialize
 
