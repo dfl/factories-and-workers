@@ -1,7 +1,7 @@
 =The Factory
 
-The Factory is a module that has two methods for each model named +create_model+ and +valid_model_attributes+.
-The methods create objects in a valid state, with default attributes and associations. When using the +create_model+ methods, you can pass in a hash to override any of the default attributes if needed.
+The Factory is a module that has three methods for each model: +build_model+, +create_model+ and +valid_model_attributes+.
+These methods create objects in a valid state, with default attributes and associations. When using the +create_model+ and +build_model+ methods, you can pass in a hash to override any of the default attributes if needed.
 Typically, you should create a file named 'factories.rb' in either the spec or test directory in your project to declare factory methods and default attributes.
 Then require it from test_helper.rb
 
