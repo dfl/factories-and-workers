@@ -1,7 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + "/_helper")
 
-require 'factories'
-
 class FactoryBuilderTest < Test::Unit::TestCase
   def metaclass; class << self; self; end; end
 

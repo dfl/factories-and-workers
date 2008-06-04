@@ -37,3 +37,6 @@ require File.expand_path(File.join(plugin_root, "test", "db", "schema"))
 # pull in our test AR::B models
 models = Dir.glob(File.join(plugin_root, "test", "app", "models", "*.rb"))
 models.each { |m| require File.expand_path(m) }
+
+
+require File.join( plugin_root, 'test', 'factories' )

@@ -11,7 +11,7 @@ class FactoryWorkerTest < Test::Unit::TestCase
   # }
 
   # TODO!
-  def assert_truth
+  def test_truth
     assert true
   end
 
