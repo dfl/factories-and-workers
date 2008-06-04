@@ -7,13 +7,14 @@ The Factory is a module that has two methods for each model named 'create_#{mode
 
 An example factories.rb file:
 
-  factory :user, { :name => "default name" }
+  factory :user, :name => "default name"
 
-This would define a method named 'create_user' and 'valid_user_attributes' to be available in any Object in the project. You could call create_user({ :name => "a different name" }) if you wanted to override the default valid attributes.
+This would define a method named 'create_user' and 'valid_user_attributes' to be available in any Object in the project. You could call create_user( :name => "a different name" ) if you wanted to override the default valid attributes.
+'build_user' is also available for those times that you don't want the object to be saved to the databse.
 
 A more complicated example:
 
-  factory :role, { :title => "role title" }
+  factory :role, :title => "role title"
   
   factory :user, {
     :name => "user name",
@@ -34,7 +35,7 @@ Take note of some things:
 
 *    To create a belongs_to association, I am creating the parent object right in the factory declaration. You could just use an id, but this is guaranteed to have the correct id when it's done.
 
-*    I used lambda for the create_role and create_user. If you don't use lambda, it will create them during the factory declaration. The point of all this factory stuff is so that you don't hit your database until you need to, so packing it into a lambda will call it JIT when the create_user or create_order method is used. You can put any ruby code you want in a lambda block in any attribute and it will be ran when the create_ method is called. This might be useful if you want Time.now to not be the time the test started, but the time the create_ method was called.
+*    I used lambda for the create_role and create_user. If you don't use lambda, it will create them during the factory declaration. The point of all this factory stuff is so that you don't hit your database until you need to, so packing it into a lambda will call it JIT when the create_user or create_order method is used. You can put any ruby code you want in a lambda block in any attribute and it will be ran when the create_* method is called. This might be useful if you want Time.now to not be the time the test started, but the time the create_* method was called.
 
 
 The Factory idea is inspired completely by:
