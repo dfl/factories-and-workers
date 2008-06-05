@@ -1,6 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + "/_helper")
 
 class FactoryBuilderTest < Test::Unit::TestCase
+  
   def metaclass; class << self; self; end; end
 
   def test_unknown_factory_raises_error
@@ -86,5 +87,4 @@ class FactoryBuilderTest < Test::Unit::TestCase
     end    
   end
 
-  
 end

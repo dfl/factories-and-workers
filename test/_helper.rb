@@ -11,7 +11,7 @@ ENV["RAILS_ENV"] = "test"
 require File.expand_path(File.join(app_root, "config", "boot"))
 $:.unshift(File.expand_path(File.join(plugin_root, "lib")))
 
-# make sure the mixins have happened
+# initialize the plugin
 require plugin_root + "/init"
 
 # pull in just what we need from Rails
@@ -39,4 +39,5 @@ models = Dir.glob(File.join(plugin_root, "test", "app", "models", "*.rb"))
 models.each { |m| require File.expand_path(m) }
 
 
+# load the factories
 require File.join( plugin_root, 'test', 'factories' )
