@@ -22,7 +22,7 @@ module FactoriesAndWorkers
       # make the valid attributes method      
       valid_attrs_method = :"valid_#{factory}_attributes"
 
-      FactoriesAndWorkers::Factory.send :define_method, valid_attrs_method do |*args|
+      Factory.send :define_method, valid_attrs_method do |*args|
         case args.first
         when Symbol  # only fetch a single attribute
           returning default_attrs[ args.first ] do |value|
@@ -50,18 +50,18 @@ module FactoriesAndWorkers
       end
 
       # alias default_*_attributes to valid_*_attributes
-      FactoriesAndWorkers::Factory.send :alias_method, valid_attrs_method.to_s.gsub('valid','default').to_sym, valid_attrs_method
+      Factory.send :alias_method, valid_attrs_method.to_s.gsub('valid','default').to_sym, valid_attrs_method
 
 
       # make the create method
-      FactoriesAndWorkers::Factory.send :define_method, :"create_#{factory}" do |*args|
+      Factory.send :define_method, :"create_#{factory}" do |*args|
         returning ar_klass.create!( self.send( valid_attrs_method, args.first, :create ) ) do |obj|
           yield obj if block_given?  # magic pen
         end
       end
 
       # make the build method
-      FactoriesAndWorkers::Factory.send :define_method, :"build_#{factory}" do |*args|
+      Factory.send :define_method, :"build_#{factory}" do |*args|
         returning ar_klass.new( self.send( valid_attrs_method, args.first, :build ) ) do |obj|
           yield obj if block_given?  # magic pen
         end
