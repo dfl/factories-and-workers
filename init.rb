@@ -1,5 +1,7 @@
 if ENV['RAILS_ENV'] == 'test'
 
+  require 'active_support/core_ext'  # for returning() and HashWithIndifferentAccess
+
   require 'factory_builder'
   require 'factory_worker'
   require 'fileutils'

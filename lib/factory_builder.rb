@@ -1,10 +1,8 @@
-require 'active_support/core_ext'  # for returning()
-
 module FactoriesAndWorkers
 
   module Factory    
-    def self.included(base)
-      base.extend(ClassMethods)
+    def self.included( base )
+      base.extend ClassMethods
     end
 
     module ClassMethods
