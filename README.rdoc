@@ -3,7 +3,7 @@
 The Factory is a module that has three methods for each model: +build_model+, +create_model+ and +valid_model_attributes+.
 These methods create objects in a valid state, with default attributes and associations. When using the +create_model+ and +build_model+ methods, you can pass in a hash to override any of the default attributes if needed.
 Typically, you should create a file named 'factories.rb' in either the spec or test directory in your project to declare factory methods and default attributes.
-Then require it from test_helper.rb
+It will be loaded during plugin initialization (see init.rb). You could also explicitly require it from test_helper.rb
 
 
 An example factories.rb file:
@@ -73,17 +73,17 @@ Then, in your tests you can call 'worker :name' to run the ruby code contained i
 My current use for this is populating the database with salable and non-salable objects and looks something like this:
 
   factory_worker :salable_and_non_salable_products do
-    create_variant({ :sku => "1" })
-    create_variant({ :sku => "2" })
-    create_variant({ :sku => "3", :in_stock => false })
-    create_variant({ :sku => "4", :in_stock => false })
+    create_variant( :sku => "1" )
+    create_variant( :sku => "2" )
+    create_variant( :sku => "3", :in_stock => false )
+    create_variant( :sku => "4", :in_stock => false )
   end
 
-The 'create_variant' method is provided by my factory setup and actually creates a valid product with associated colors, sizes, and other options that I need. Now, I have 4 products in the database, 2 are in stock and 2 are not. So, in my test: find(:salable).length.should == 2
+The +create_variant+ method would provided by my factory setup, and creates a valid product with associated colors, sizes, and other options that I need. Now, I have 4 products in the database, 2 are in stock and 2 are not. So, in my test: find(:salable).length.should == 2
 
 And it does.
 
-You can chain workers together like this:
+Similar to rake task dependencies, you can chain workers together like this:
 
   factory_worker :first do
     puts "I am first"
@@ -99,8 +99,12 @@ You can chain workers together like this:
 
 If you call 'worker :third', it should output:
 
-I am first
-I am second
-I am third
+  I am first
+  I am second
+  I am third
 
-This chaining functionality may not work 100% yet.
+You can also chain workers like this:
+  factory_worker :several => [ :first, :second ]
+
+and even add dependencies to the chain in further statements
+  factory_worker :several => [ :third ]
