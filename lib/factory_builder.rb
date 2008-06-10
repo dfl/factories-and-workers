@@ -23,7 +23,7 @@ module FactoriesAndWorkers
       ar_klass = ActiveRecord.const_get( factory.to_s.classify )
 
       # make the valid attributes method      
-      p valid_attrs_method = :"valid_#{factory}_attributes"
+      valid_attrs_method = :"valid_#{factory}_attributes"
       
       Factory::ClassMethods.send :define_method, valid_attrs_method do |*args|
         case args.first
