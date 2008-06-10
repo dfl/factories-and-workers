@@ -2,7 +2,8 @@ Test::Unit::TestCase.class_eval do
   include FactoriesAndWorkers::Factory
   
   factory :monkey, {
-    :name => "George"
+    :name => "George",
+    :unique => "$UNIQUE"
   }
 
   factory :pirate, {

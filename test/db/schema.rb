@@ -2,6 +2,7 @@ ActiveRecord::Schema.define do
 
   create_table :monkeys do |t|
     t.column :name, :string
+    # t.column :unique, :string
   end
   
   create_table :pirates do |t|

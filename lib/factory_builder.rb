@@ -1,6 +1,6 @@
 module FactoriesAndWorkers
 
-  module Factory    
+  module Factory
     def self.included( base )
       base.extend ClassMethods
     end
@@ -11,6 +11,11 @@ module FactoriesAndWorkers
       end
     end
 
+    # factory methods are defined as class methods; this delegation will allow them to also be called as instance methods
+    def method_missing method, *args
+      self.class.send method, *args
+    end
+    
   end
   
   class FactoryBuilder
@@ -18,9 +23,9 @@ module FactoriesAndWorkers
       ar_klass = ActiveRecord.const_get( factory.to_s.classify )
 
       # make the valid attributes method      
-      valid_attrs_method = :"valid_#{factory}_attributes"
-
-      Factory.send :define_method, valid_attrs_method do |*args|
+      p valid_attrs_method = :"valid_#{factory}_attributes"
+      
+      Factory::ClassMethods.send :define_method, valid_attrs_method do |*args|
         case args.first
         when Symbol  # only fetch a single attribute
           returning default_attrs[ args.first ] do |value|
@@ -38,7 +43,9 @@ module FactoriesAndWorkers
               when Proc
                 value.call  # evaluate lambda
               when :belongs_to_model  # create or build model, depending on calling context
-                send "#{args[1] || :create }_#{key}"              
+                send "#{args[1] || :create }_#{key}"
+              when String
+                value.gsub( '$UNIQUE', Time.now.hash.abs.to_s(36) ) # uniquify attributes as needed
               else
                 value
               end
@@ -48,18 +55,18 @@ module FactoriesAndWorkers
       end
 
       # alias default_*_attributes to valid_*_attributes
-      Factory.send :alias_method, valid_attrs_method.to_s.gsub('valid','default').to_sym, valid_attrs_method
+      Factory::ClassMethods.send :alias_method, valid_attrs_method.to_s.gsub('valid','default').to_sym, valid_attrs_method
 
 
       # make the create method
-      Factory.send :define_method, :"create_#{factory}" do |*args|
+      Factory::ClassMethods.send :define_method, :"create_#{factory}" do |*args|
         returning ar_klass.create!( self.send( valid_attrs_method, args.first, :create ) ) do |obj|
           yield obj if block_given?  # magic pen
         end
       end
 
       # make the build method
-      Factory.send :define_method, :"build_#{factory}" do |*args|
+      Factory::ClassMethods.send :define_method, :"build_#{factory}" do |*args|
         returning ar_klass.new( self.send( valid_attrs_method, args.first, :build ) ) do |obj|
           yield obj if block_given?  # magic pen
         end
