@@ -22,9 +22,9 @@ A more complicated example:
   
   factory :user, {
     :name => "user name",
-    :login => "$UNIQUE(7)",                     # the $UNIQUE(n) magic variable interpolates to a unique string of length n
-    :email => "user_$COUNTER@email.com"      ,  # the $COUNTER magic variable interpolates to an incremental number, beginning with 1
-    :role => :belongs_to_model
+    :login => "$UNIQUE(7)",                      # the $UNIQUE(n) magic variable interpolates to a unique string of length n
+    :email => "user_$COUNTER@email.com",         # the $COUNTER magic variable interpolates to an incremental number, beginning with 1
+    :role => :belongs_to_model,
     :created_at => lambda { Time.zone.now - 7 }  # lazy evaluation
   }
   
