@@ -13,7 +13,6 @@ class FactoryBuilderTest < Test::Unit::TestCase
     assert_equal "uninitialized constant ActiveRecord::Foo", e.message
   end
 
-
   def test_build_monkey
     assert_difference "Monkey.count", 0 do
       build_monkey
@@ -107,7 +106,7 @@ class FactoryBuilderTest < Test::Unit::TestCase
       @pirate = build_pirate( :monkey_id => 1 )
     end    
   end
-
+  
   protected
 
   def remove_variability hash

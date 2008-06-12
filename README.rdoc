@@ -52,9 +52,9 @@ Note that if you pass a foreign key attribute as a build or create override, the
 For example:
   create_user( :role_id => 1 ) # will not call create_role.
 
-
-There are two magic variables: $UNIQ(), and $COUNT. See the comments in the above example for more info.
-Another available helper method is increment!(key), which works like $COUNT, but returns an integer and can be assigned an arbitrary key that is unrelated to the model.
+Two helper methods are available to be used in lambda blocks:
+* increment!( key ) -- increments a global counter keyed on a symbol or string
+* uniq( length ) -- returns a random string
 
 
 The Factory idea was inspired completely by Dan Manges:

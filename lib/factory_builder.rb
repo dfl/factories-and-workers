@@ -8,25 +8,29 @@ module FactoriesAndWorkers
       base.extend ClassMethods          
       base.instance_eval do
         @@factory_counter = Hash.new(0)
-        
+
         def increment! counter
           @@factory_counter[ counter.to_s ] += 1
         end
+
+        # create a random hex string, then convert it to hexatridecimal, and cut to length
+        def uniq len=10
+          Digest::SHA1.hexdigest("#{rand(1<<64)}/#{Time.now.to_f}/#{Process.pid}").to_i(16).to_s(36)[1..len.to_i]
+        end        
       end
+      
     end
     
 
     module ClassMethods
 
+      # def factory( kind, default_attrs, &block )
+      #   FactoryBuilder.new( kind, default_attrs, &block )
+      # end
       def factory( kind, default_attrs={} )
         FactoryBuilder.new( kind, default_attrs )
       end
 
-      # create a random hex string, then convert it to hexatridecimal, and cut to length
-      def random_string len
-        Digest::SHA1.hexdigest("#{rand(1<<64)}/#{Time.now.to_f}/#{Process.pid}").to_i(16).to_s(36)[1..len.to_i]
-      end
-            
     end
 
     # factory methods are defined as class methods; this delegation will allow them to also be called as instance methods
@@ -41,12 +45,12 @@ module FactoriesAndWorkers
   end
 
   class FactoryBuilder
-    def initialize( factory, default_attrs={} )
+    def initialize( factory, default_attrs, &block )
       ar_klass = ActiveRecord.const_get( factory.to_s.classify )
 
       # make the valid attributes method      
       valid_attrs_method = :"valid_#{factory}_attributes"
-
+      
       Factory::ClassMethods.send :define_method, valid_attrs_method do |*args|
         case args.first
         when Symbol  # only fetch a single attribute
@@ -67,7 +71,7 @@ module FactoriesAndWorkers
               when :belongs_to_model  # create or build model, depending on calling context
                 send "#{args[1] || :create }_#{key}"
               when String
-                value.gsub( /\$UNIQ\((\d+)\)/ ){ random_string( $1 ) }.
+                value.gsub( /\$UNIQ\((\d+)\)/ ){ uniq( $1 ) }.
                       gsub( '$COUNT', increment!( key ).to_s )
               else
                 value
@@ -83,16 +87,12 @@ module FactoriesAndWorkers
 
       # make the create method
       Factory::ClassMethods.send :define_method, :"create_#{factory}" do |*args|
-        returning ar_klass.create!( self.send( valid_attrs_method, args.first, :create ) ) do |obj|
-          yield obj if block_given?  # magic pen
-        end
+        ar_klass.create!( self.send( valid_attrs_method, args.first, :create ) )
       end
 
       # make the build method
       Factory::ClassMethods.send :define_method, :"build_#{factory}" do |*args|
-        returning ar_klass.new( self.send( valid_attrs_method, args.first, :build ) ) do |obj|
-          yield obj if block_given?  # magic pen
-        end
+        ar_klass.new( self.send( valid_attrs_method, args.first, :build ) )
       end
 
     end #initialize
