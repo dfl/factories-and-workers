@@ -11,9 +11,8 @@ An example factories.rb file:
   factory :user, :name => "default name"
 
 This would define methods named +build_user+, +create_user+, and +valid_user_attributes+ to be available in any Object in the project.
-You could call
+If you wanted to override the default valid attributes, you could call:
   create_user( :name => "a different name" )
-if you wanted to override the default valid attributes.
 
 
 A more complicated example:
@@ -25,14 +24,14 @@ A more complicated example:
     :login      => "$UNIQ(7)",                      # the $UNIQ(n) magic variable interpolates to a unique string of length n
     :email      => "user_$COUNT@email.com",         # the $COUNT magic variable interpolates to an incremental number, beginning with 1
     :role       => :belongs_to_model,
-    :created_at => lambda { Time.zone.now - 7 }  # lazy evaluation
+    :created_at => lambda { Time.zone.now - 7 }     # lazy evaluation
   }
   
   factory :order, {
     :quantity => 5,
     :price    => 500,
     :user     => :belongs_to_model
-    :number   => lambda{ increment! :foo }          # increment a counter by arbitrary key
+    :number   => lambda { increment! :foo }         # increment a counter by arbitrary key
   }
 
 This will make nine methods:
@@ -55,8 +54,7 @@ For example:
 
 
 There are two magic variables: $UNIQ(), and $COUNT. See the comments in the above example for more info.
-Another available helper method is +increment!(key)+.
-It works like $COUNT, but returns an integer and can be assigned an arbitrary key that is unrelated to the model.
+Another available helper method is increment!(key), which works like $COUNT, but returns an integer and can be assigned an arbitrary key that is unrelated to the model.
 
 
 The Factory idea was inspired completely by Dan Manges:
