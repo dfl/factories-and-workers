@@ -3,8 +3,9 @@ Test::Unit::TestCase.class_eval do
   
   factory :monkey, {
     :name => "George",
-    :unique => "$UNIQUE(10)",
-    :counter => "$COUNTER"
+    :unique => "$UNIQ(10)",
+    :counter => "$COUNT",
+    :number => lambda{ increment! :foo }
   }
 
   factory :pirate, {

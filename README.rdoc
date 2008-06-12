@@ -21,17 +21,18 @@ A more complicated example:
   factory :role, :title => "role title"
   
   factory :user, {
-    :name => "user name",
-    :login => "$UNIQUE(7)",                      # the $UNIQUE(n) magic variable interpolates to a unique string of length n
-    :email => "user_$COUNTER@email.com",         # the $COUNTER magic variable interpolates to an incremental number, beginning with 1
-    :role => :belongs_to_model,
+    :name       => "user name",
+    :login      => "$UNIQ(7)",                      # the $UNIQ(n) magic variable interpolates to a unique string of length n
+    :email      => "user_$COUNT@email.com",         # the $COUNT magic variable interpolates to an incremental number, beginning with 1
+    :role       => :belongs_to_model,
     :created_at => lambda { Time.zone.now - 7 }  # lazy evaluation
   }
   
   factory :order, {
     :quantity => 5,
-    :price => 500,
-    :user => :belongs_to_model
+    :price    => 500,
+    :user     => :belongs_to_model
+    :number   => lambda{ increment! :foo }          # increment a counter by arbitrary key
   }
 
 This will make nine methods:
@@ -52,7 +53,11 @@ Note that if you pass a foreign key attribute as a build or create override, the
 For example:
   create_user( :role_id => 1 ) # will not call create_role.
 
-There are also two magic variables: $UNIQUE(), and $COUNTER. See the comments in the above example for more info.
+
+There are two magic variables: $UNIQ(), and $COUNT. See the comments in the above example for more info.
+Another available helper method is +increment!(key)+.
+It works like $COUNT, but returns an integer and can be assigned an arbitrary key that is unrelated to the model.
+
 
 The Factory idea was inspired completely by Dan Manges:
   http://www.dcmanges.com/blog/38

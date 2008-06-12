@@ -26,7 +26,7 @@ class FactoryBuilderTest < Test::Unit::TestCase
     end
   end
 
-  def test_unique_interpolation
+  def test_uniq_interpolation
     a = build_monkey.unique
     b = build_monkey.unique
     assert_not_equal a, b
@@ -34,30 +34,28 @@ class FactoryBuilderTest < Test::Unit::TestCase
     assert_equal 10, b.length
   end
 
-  def test_counter
+  def test_count_interpolation
     a = build_monkey.counter.to_i
     b = build_monkey.counter.to_i
     assert_equal b, a+1
   end
   
+  def test_increment!
+    a = build_monkey.number
+    b = build_monkey.number
+    assert_equal b, a+1
+    assert_equal increment!(:foo), b+1
+  end
+  
   def test_valid_monkey_attributes
-    hash = valid_monkey_attributes
-    hash.delete(:unique)
-    hash.delete(:counter)
-    assert_equal( {:name => "George"}, hash)
+    assert_equal( {:name => "George"}, remove_variability( valid_monkey_attributes) )
   end
 
   def test_default_monkey_attributes_alias
-    hash1 = valid_monkey_attributes
-    hash1.delete(:unique)
-    hash1.delete(:counter)
-    hash2 = default_monkey_attributes
-    hash2.delete(:unique)
-    hash2.delete(:counter)
+    hash1 = remove_variability( valid_monkey_attributes )
+    hash2 = remove_variability( default_monkey_attributes )
     assert_equal hash1, hash2
   end
-
-
 
   def test_build_pirate
     assert_difference "Pirate.count", 0 do
@@ -108,6 +106,16 @@ class FactoryBuilderTest < Test::Unit::TestCase
     assert_difference "Monkey.count", 0 do
       @pirate = build_pirate( :monkey_id => 1 )
     end    
+  end
+
+  protected
+
+  def remove_variability hash
+    returning hash do
+      hash.delete(:unique)
+      hash.delete(:counter)
+      hash.delete(:number)
+    end
   end
 
 end

@@ -3,26 +3,30 @@ require 'digest/sha1'
 module FactoriesAndWorkers
 
   module Factory
-
+      
     def self.included( base )
-      base.extend ClassMethods
-      base.class_eval do
-        @@instance_counter = Hash.new(0)
+      base.extend ClassMethods          
+      base.instance_eval do
+        @@factory_counter = Hash.new(0)
+        
+        def increment! counter
+          @@factory_counter[ counter.to_s ] += 1
+        end
       end
     end
-
-
-    # create a random hex string, then convert it to hexatridecimal, and cut to length
+    
 
     module ClassMethods
+
       def factory( kind, default_attrs={} )
         FactoryBuilder.new( kind, default_attrs )
       end
 
+      # create a random hex string, then convert it to hexatridecimal, and cut to length
       def random_string len
         Digest::SHA1.hexdigest("#{rand(1<<64)}/#{Time.now.to_f}/#{Process.pid}").to_i(16).to_s(36)[1..len.to_i]
       end
-
+            
     end
 
     # factory methods are defined as class methods; this delegation will allow them to also be called as instance methods
@@ -63,8 +67,8 @@ module FactoriesAndWorkers
               when :belongs_to_model  # create or build model, depending on calling context
                 send "#{args[1] || :create }_#{key}"
               when String
-                value.gsub( /\$UNIQUE\((\d+)\)/ ){ random_string( $1 ) }.
-                      gsub( '$COUNTER', class_eval("@@instance_counter['#{key}'] += 1").to_s )
+                value.gsub( /\$UNIQ\((\d+)\)/ ){ random_string( $1 ) }.
+                      gsub( '$COUNT', increment!( key ).to_s )
               else
                 value
               end
