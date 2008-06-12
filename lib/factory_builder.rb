@@ -1,8 +1,12 @@
 module FactoriesAndWorkers
 
   module Factory
+
     def self.included( base )
       base.extend ClassMethods
+      base.class_eval do
+        @@instance_counter = Hash.new(0)
+      end
     end
 
     module ClassMethods
@@ -49,7 +53,8 @@ module FactoriesAndWorkers
               when :belongs_to_model  # create or build model, depending on calling context
                 send "#{args[1] || :create }_#{key}"
               when String
-                value.gsub( '$UNIQUE', Time.now.hash.abs.to_s(36) ) # uniquify attributes as needed
+                value.gsub( '$UNIQUE', Time.now.hash.abs.to_s(36) ).
+                      gsub( '$COUNTER', class_eval("@@instance_counter['#{key}'] += 1").to_s )
               else
                 value
               end

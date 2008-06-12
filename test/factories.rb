@@ -3,7 +3,8 @@ Test::Unit::TestCase.class_eval do
   
   factory :monkey, {
     :name => "George",
-    :unique => "$UNIQUE"
+    :unique => "$UNIQUE",
+    :counter => "$COUNTER"
   }
 
   factory :pirate, {

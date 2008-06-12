@@ -27,22 +27,31 @@ class FactoryBuilderTest < Test::Unit::TestCase
   end
 
   def test_unique_interpolation
-    a = build_monkey
-    b = build_monkey
-    assert a.unique != b.unique
+    a = build_monkey.unique
+    b = build_monkey.unique
+    assert a != b
   end
 
+  def test_counter
+    a = build_monkey.counter.to_i
+    b = build_monkey.counter.to_i
+    assert_equal b, a+1
+  end
+  
   def test_valid_monkey_attributes
     hash = valid_monkey_attributes
     hash.delete(:unique)
+    hash.delete(:counter)
     assert_equal( {:name => "George"}, hash)
   end
 
   def test_default_monkey_attributes_alias
     hash1 = valid_monkey_attributes
     hash1.delete(:unique)
+    hash1.delete(:counter)
     hash2 = default_monkey_attributes
     hash2.delete(:unique)
+    hash2.delete(:counter)
     assert_equal hash1, hash2
   end
 
