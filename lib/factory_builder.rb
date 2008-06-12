@@ -20,7 +20,6 @@ module FactoriesAndWorkers
       end
 
       def random_string len
-        puts "making random string of length #{len}"
         Digest::SHA1.hexdigest("#{rand(1<<64)}/#{Time.now.to_f}/#{Process.pid}").to_i(16).to_s(36)[1..len.to_i]
       end
 
