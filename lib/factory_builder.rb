@@ -1,3 +1,5 @@
+require 'digest/sha1'
+
 module FactoriesAndWorkers
 
   module Factory
@@ -9,10 +11,19 @@ module FactoriesAndWorkers
       end
     end
 
+
+    # create a random hex string, then convert it to hexatridecimal, and cut to length
+
     module ClassMethods
       def factory( kind, default_attrs={} )
         FactoryBuilder.new( kind, default_attrs )
       end
+
+      def random_string len
+        puts "making random string of length #{len}"
+        Digest::SHA1.hexdigest("#{rand(1<<64)}/#{Time.now.to_f}/#{Process.pid}").to_i(16).to_s(36)[1..len.to_i]
+      end
+
     end
 
     # factory methods are defined as class methods; this delegation will allow them to also be called as instance methods
@@ -23,16 +34,16 @@ module FactoriesAndWorkers
         super
       end
     end
-    
+
   end
-  
+
   class FactoryBuilder
     def initialize( factory, default_attrs={} )
       ar_klass = ActiveRecord.const_get( factory.to_s.classify )
 
       # make the valid attributes method      
       valid_attrs_method = :"valid_#{factory}_attributes"
-      
+
       Factory::ClassMethods.send :define_method, valid_attrs_method do |*args|
         case args.first
         when Symbol  # only fetch a single attribute
@@ -53,7 +64,7 @@ module FactoriesAndWorkers
               when :belongs_to_model  # create or build model, depending on calling context
                 send "#{args[1] || :create }_#{key}"
               when String
-                value.gsub( '$UNIQUE', Time.now.hash.abs.to_s(36) ).
+                value.gsub( /\$UNIQUE\((\d+)\)/ ){ random_string( $1 ) }.
                       gsub( '$COUNTER', class_eval("@@instance_counter['#{key}'] += 1").to_s )
               else
                 value

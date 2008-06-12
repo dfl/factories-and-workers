@@ -27,9 +27,11 @@ class FactoryBuilderTest < Test::Unit::TestCase
   end
 
   def test_unique_interpolation
-    a = build_monkey.unique
-    b = build_monkey.unique
-    assert a != b
+    p a = build_monkey.unique
+    p b = build_monkey.unique
+    assert_not_equal a, b
+    assert_equal 10, a.length
+    assert_equal 10, b.length
   end
 
   def test_counter
