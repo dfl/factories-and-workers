@@ -1,14 +1,19 @@
 =The Factory
 
+The Factory idea was inspired completely by Dan Manges' blog post "Fixin' Fixtures with Factory" @ http://www.dcmanges.com/blog/38
+
 The Factory is a module that has three methods for each model: +build_model+, +create_model+ and +valid_model_attributes+.
+( For semantic purposes, +default_model_attributes+ is also available as an alias to +valid_model_attributes+. )
+
 These methods create objects in a valid state, with default attributes and associations. When using the +create_model+ and +build_model+ methods, you can pass in a hash to override any of the default attributes if needed.
 Typically, you should create a file named 'factories.rb' in either the spec or test directory in your project to declare factory methods and default attributes.
 It will be loaded during plugin initialization (see init.rb). You could also explicitly require it from test_helper.rb
 
+A minimal factories.rb file:
 
-An example factories.rb file:
+include FactoriesAndWorkers::Factory    # mixin to Object, which is useful for script/console work (Otherwise you can Test::Unit::TestCase.class_eval )
 
-  factory :user, :name => "default name"
+factory :user, :name => "default name"
 
 This would define methods named +build_user+, +create_user+, and +valid_user_attributes+ to be available in any Object in the project.
 If you wanted to override the default valid attributes, you could call:
@@ -20,13 +25,16 @@ A more complicated example:
   factory :role, :title => "role title"
   
   factory :user, {
-    :name       => "user name",
-    :login      => "$UNIQ(7)",                      # the $UNIQ(n) magic variable interpolates to a unique string of length n
-    :email      => "user_$COUNT@email.com",         # the $COUNT magic variable interpolates to an incremental number, beginning with 1
+    :first_name => "Joe",
+    :last_name  => "Momma",
+    :password   => "$UNIQ(7)",                      # the $UNIQ(n) magic variable interpolates to a unique string of length n
+    :login      => "user_$COUNT",                   # the $COUNT magic variable interpolates to an incremental number, beginning with 1   
     :role       => :belongs_to_model,
-    :created_at => lambda { Time.zone.now - 7 }     # lazy evaluation
-  }
-  
+    :created_at => lambda { Time.zone.now - 7 }     # lazy evaluation: will be called on object instantiation rather than factory definition
+  } do |u|                                          # code to be called in after_initialize hook
+    u.email = "#{u.first_name}.#{u.last_name}@example.com".downcase
+  end
+
   factory :order, {
     :quantity => 5,
     :price    => 500,
@@ -34,12 +42,6 @@ A more complicated example:
     :number   => lambda { increment! :foo }         # increment a counter by arbitrary key
   }
 
-This will make nine methods:
-+build_role+, +create_role+, +valid_role_attributes+, +build_user+, +create_user+, +valid_user_attributes+, +build_order+, +create_order+, and +valid_order_attributes+
-
-+default_model_attributes+ is also available as an alias to +valid_model_attributes+.
-
-Note that :created_at is passed a lambda block, which will be evaluated at object creation, rather than at factory definition.
 
 A value of :belongs_to_model on an attribute adds logic to call +create_+ or +build_+, appropriately.
 For example:
@@ -47,18 +49,15 @@ For example:
 +valid_user_attributes+ will call +build_role+.
 In this way, models are not saved to the database unnecessarily.
 
-
 Note that if you pass a foreign key attribute as a build or create override, the corresponding default object will not be constructed.
 For example:
   create_user( :role_id => 1 ) # will not call create_role.
+
 
 Two helper methods are available to be used in lambda blocks:
 * increment!( key ) -- increments a global counter keyed on a symbol or string
 * uniq( length ) -- returns a random string
 
-
-The Factory idea was inspired completely by Dan Manges:
-  http://www.dcmanges.com/blog/38
 
 
 =The FactoryWorker
@@ -113,3 +112,4 @@ You can also chain workers like this:
 
 and even add dependencies to the chain in further statements
   factory_worker :several => [ :third ]
+

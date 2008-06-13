@@ -1,12 +1,10 @@
-Test::Unit::TestCase.class_eval do
+# Test::Unit::TestCase.class_eval do
   include FactoriesAndWorkers::Factory
   
   factory :monkey, {
     :name      => "George",
     :unique  => "$UNIQ(10)",
-    # :unique    => lambda{ uniq(10) },
     :counter => "$COUNT",
-    # :counter   => lambda{ increment!(:monkey).to_s },
     :number    => lambda{ increment! :foo }
   }
 
@@ -16,4 +14,4 @@ Test::Unit::TestCase.class_eval do
     :created_on  => lambda{ 1.day.ago }
   }
 
-end
+# end

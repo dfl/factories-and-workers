@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + "/_helper")
+require File.expand_path(File.dirname(__FILE__) + "/test_helper")
 
 class FactoryBuilderTest < Test::Unit::TestCase
 
@@ -7,10 +7,20 @@ class FactoryBuilderTest < Test::Unit::TestCase
   def test_unknown_factory_raises_error
     e = assert_raises(NameError) do
       metaclass.class_eval do
-        factory :foo
+        factory :foo, {}
       end
     end
     assert_equal "uninitialized constant ActiveRecord::Foo", e.message
+  end
+
+  def test_factory_with_initializer
+    metaclass.class_eval do      
+      factory :user, {
+        :first_name => "Joe",
+        :last_name => "Blow"
+      } do |u| u.email = "#{u.first_name}.#{u.last_name}@example.com".downcase end        
+    end
+    assert_equal "joe.doe@example.com", build_user( :last_name => 'Doe' ).email
   end
 
   def test_build_monkey
@@ -35,6 +45,7 @@ class FactoryBuilderTest < Test::Unit::TestCase
 
   def test_count_interpolation
     a = build_monkey.counter.to_i
+    increment!(:foo)
     b = build_monkey.counter.to_i
     assert_equal b, a+1
   end
