@@ -12,9 +12,9 @@ module FactoriesAndWorkers
         FactoryBuilder.new( kind, default_attrs, self, &block )
       end
 
-      # creates a random hex string, converts it to hexatridecimal, and cuts to length
+      # creates a random hex string, converts it to hexatridecimal, and truncates to desired length (max 30)
       def uniq len=10
-        Digest::SHA1.hexdigest("#{rand(1<<64)}/#{Time.now.to_f}/#{Process.pid}").to_i(16).to_s(36)[1..len.to_i]
+        Digest::SHA1.hexdigest("#{rand(1<<64)}/#{Time.now.to_f}/#{Process.pid}").to_i(16).to_s(36)[1..len]
       end
 
       @@factory_counter = Hash.new(0)
@@ -61,7 +61,7 @@ module FactoriesAndWorkers
             when :belongs_to_model  
               send "#{action}_#{key}"  # create or build model
             when String                # interpolate magic variables
-              value.gsub( /\$UNIQ\((\d+)\)/ ){ from_klass.uniq( $1 ) }.  
+              value.gsub( /\$UNIQ\((\d+)\)/ ){ from_klass.uniq( $1.to_i ) }.  
               gsub( '$COUNT', from_klass.increment!( key ).to_s )
             else
               value
