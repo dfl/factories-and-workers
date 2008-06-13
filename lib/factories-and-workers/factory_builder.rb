@@ -59,7 +59,7 @@ module FactoriesAndWorkers
             when Proc
               value.call               # evaluate lambda blocks
             when :belongs_to_model  
-              send "#{action}_#{key}"  # create or build model
+              send "#{action}_#{key}"  # create or build model dependencies
             when String                # interpolate magic variables
               value.gsub( /\$UNIQ\((\d+)\)/ ){ from_klass.uniq( $1.to_i ) }.  
               gsub( '$COUNT', from_klass.increment!( key ).to_s )

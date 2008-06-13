@@ -2,10 +2,10 @@
   include FactoriesAndWorkers::Factory
   
   factory :monkey, {
-    :name      => "George",
+    :name    => "George",
     :unique  => "$UNIQ(10)",
     :counter => "$COUNT",
-    :number    => lambda{ increment! :foo }
+    :number  => lambda{ increment! :foo }
   }
 
   factory :pirate, {
