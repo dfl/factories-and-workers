@@ -45,8 +45,11 @@ A more complicated example:
 
 A value of :belongs_to_model on an attribute adds logic to call +create_+ or +build_+, appropriately.
 For example:
-+build_user+ will call :role => build_role, while +create_user+ will call :role => create_role.
-+valid_user_attributes+ will call +build_role+.
+  valid_user_attributes         # assigns :role => build_role
+  build_user                    # assigns :role => build_role
+
+  create_user                   # assigns :role => create_role
+  valid_user_attributes(true)   # assigns :role => create_role
 In this way, models are not saved to the database unnecessarily.
 
 Note that if you pass a foreign key attribute as a build or create override, the corresponding default object will not be constructed.

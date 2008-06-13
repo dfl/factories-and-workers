@@ -58,10 +58,28 @@ class FactoryBuilderTest < Test::Unit::TestCase
   end
   
   def test_valid_monkey_attributes
-    assert_equal( {:name => "George"}, remove_variability( valid_monkey_attributes) )
+    assert_equal( {:name => "George"}, remove_variability( valid_monkey_attributes ) )
   end
 
-  def test_default_monkey_attributes_alias
+  def test_valid_pirate_attributes_without_create
+    assert_difference "Monkey.count", 0 do
+      valid_pirate_attributes( false )
+    end
+  end
+  
+  def test_valid_pirate_attributes_with_create
+    assert_difference "Monkey.count", 1 do
+      valid_pirate_attributes( true )
+    end
+  end
+
+  def test_valid_attribute__does_not_evaluate_other_attributes
+    assert_difference "Monkey.count", 0 do
+      assert_equal "Ahhrrrr, Matey!", valid_pirate_attribute(:catchphrase)
+    end
+  end
+  
+  def test_default_attributes_alias
     hash1 = remove_variability( valid_monkey_attributes )
     hash2 = remove_variability( default_monkey_attributes )
     assert_equal hash1, hash2
@@ -72,18 +90,6 @@ class FactoryBuilderTest < Test::Unit::TestCase
       assert_difference "Monkey.count", 0 do
         build_pirate
       end
-    end
-  end
-
-  def test_valid_pirate_attributes_calling_lambda
-    assert_difference "Monkey.count", 1 do
-      assert_equal "Ahhrrrr, Matey!", valid_pirate_attributes[:catchphrase]
-    end
-  end
-
-  def test_valid_pirate_attributes_with_single_arg_does_not_call_lambda
-    assert_difference "Monkey.count", 0 do
-      assert_equal "Ahhrrrr, Matey!", valid_pirate_attributes(:catchphrase)
     end
   end
 
@@ -100,14 +106,14 @@ class FactoryBuilderTest < Test::Unit::TestCase
 
   def test_overridden_attributes
     @phil = create_monkey( :name => "Phil" )
-    assert_not_equal valid_monkey_attributes[:name], @phil.name
+    assert_not_equal valid_monkey_attribute(:name), @phil.name
 
     assert_difference "Pirate.count", 0 do
       assert_difference "Monkey.count", 0 do
         @pirate = build_pirate( :monkey => @phil, :catchphrase => "chunky bacon!" )
       end
     end
-    assert_not_equal valid_pirate_attributes(:catchphrase), @pirate.catchphrase    
+    assert_not_equal valid_pirate_attribute(:catchphrase), @pirate.catchphrase    
     assert_equal "Phil", @pirate.monkey.name
     assert_equal "George", build_pirate.monkey.name
   end
@@ -115,7 +121,7 @@ class FactoryBuilderTest < Test::Unit::TestCase
   def test_overridden_attribute_id_will_not_evaluate_lambda_for_model_creation
     assert_difference "Monkey.count", 0 do
       @pirate = build_pirate( :monkey_id => 1 )
-    end    
+    end
   end
   
   protected
