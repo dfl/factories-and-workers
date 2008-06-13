@@ -11,7 +11,7 @@ It will be loaded during plugin initialization (see init.rb). You could also exp
 
 A minimal factories.rb file:
 
-  include FactoriesAndWorkers::Factory    # mixin to Object, which is useful for script/console work (Otherwise you can Test::Unit::TestCase.class_eval )
+  include FactoriesAndWorkers::Factory    # mixin to Object, which is especially useful for script/console work; season to taste.
 
   factory :user, :name => "default name"
 
