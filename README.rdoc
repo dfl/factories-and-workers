@@ -65,7 +65,7 @@ Two helper methods are available to be used in lambda blocks:
 
 =The FactoryWorker
 
-The FactoryWorker functionality is not finished yet, but it works well enough.
+The FactoryWorker is a work in progress.
 
 If you create a file named 'factory_workers.rb' in either your spec or test directory, you can define snippets of code that can be ran at anytime, anywhere in your tests (this may not be true in the future, I may limit where it can be run, iono). 
 
@@ -77,7 +77,7 @@ A factory worker is defined as so:
 
 Then, in your tests you can call 'worker :name' to run the ruby code contained in the worker.
 
-My current use for this is populating the database with salable and non-salable objects and looks something like this:
+It can be useful for populating the database with objects:
 
   factory_worker :salable_and_non_salable_products do
     create_variant( :sku => "1" )
