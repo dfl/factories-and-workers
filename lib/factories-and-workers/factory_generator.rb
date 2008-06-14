@@ -1,5 +1,7 @@
 module Factory
 
+  IGNORED_COLUMNS = %w[ id created_at updated_at created_on updated_on ]
+
   def self.generate_template arg
     p model = arg.classify.constantize
     columns = {}
@@ -20,9 +22,6 @@ module Factory
   end
 
   protected
-
-  IGNORED_COLUMNS = %w[ id created_at updated_at created_on updated_on ]
-
 
   def self.default_for val
     case val
@@ -46,6 +45,3 @@ module Factory
   end
 
 end
-
-# puts Factory.generate_template( "Project" )
-# puts Factory.generate_template( "Task" )
