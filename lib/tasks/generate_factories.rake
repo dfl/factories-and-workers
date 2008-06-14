@@ -1,4 +1,4 @@
-desc "Generate factory templates from database schema"
+desc "Generate factory templates from database schema; takes optional MODEL= argument"
 
 namespace :factory do
 

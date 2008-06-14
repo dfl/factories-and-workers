@@ -5,11 +5,10 @@ module Factory
     columns = {}
     model.columns.each do |col|
       key = col.name
-      columns[ key.to_sym ] = case key
-      when /^.+_id$/
-        :belongs_to_model
+      if key =~ /^(.+)_id$/
+        columns[ $1.to_sym ] = :belongs_to_model
       else
-        { :type => col.type, :default => col.default }
+        columns[ key.to_sym ] = { :type => col.type, :default => col.default }
       end unless IGNORED_COLUMNS.include?( key )
     end
 
