@@ -8,7 +8,7 @@ namespace :factory do
     if arg = ENV['model'] || ENV['MODEL']
       puts Factory.generate_template( arg )
     else
-      all_models = Dir.glob( File.join( RAILS_ROOT, 'app', 'models', '*.rb') ).map{|f| f.split('/').last.chomp('.rb') }
+      all_models = Dir.glob( File.join( RAILS_ROOT, 'app', 'models', '*.rb') ).map{|path| path[/.+\/(.+).rb/, 1] }
       all_models.select{|m| m.classify.constantize < ActiveRecord::Base}.each do |model|
         puts Factory.generate_template( model )
       end
