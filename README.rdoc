@@ -62,6 +62,10 @@ Two helper methods are available to be used in lambda blocks:
 * uniq( length ) -- returns a random string
 
 
+There is also a rake task to automagically generate template factories from your models.
+  rake factory:generate             # will print templates for all AR models
+  rake factory:generate MODEL=user  # will print template for user model
+
 
 =The FactoryWorker
 
