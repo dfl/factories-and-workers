@@ -8,7 +8,7 @@ module Factory
     model.columns.each do |col|
       key = col.name
       if key =~ /^(.+)_id$/
-        columns[ $1.to_sym ] = :belongs_to_model
+        columns[ $1.to_sym ]  = :belongs_to_model
       else
         columns[ key.to_sym ] = { :type => col.type, :default => col.default }
       end unless IGNORED_COLUMNS.include?( key )
@@ -32,7 +32,7 @@ module Factory
       case val[:type]
       when :integer
         123
-      when :string
+      when :string, :body
         "SomeString".inspect
       when :float
         1.23
