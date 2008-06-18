@@ -3,7 +3,7 @@ module Factory
   IGNORED_COLUMNS = %w[ id created_at updated_at created_on updated_on ]
 
   def self.generate_template arg
-    p model = arg.classify.constantize
+    model = arg.classify.constantize
     columns = {}
     model.columns.each do |col|
       key = col.name
