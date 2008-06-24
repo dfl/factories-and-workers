@@ -76,7 +76,7 @@ class FactoryBuilderTest < Test::Unit::TestCase
     assert_not_equal create_pirate.updated_on.to_s, @pirate.updated_on.to_s
   end
 
-  def test_ninja_pirate
+  def test_ninja_pirate_is_silent_and_has_no_monkey
     assert_difference "Pirate.count", 1 do
       assert_difference "Monkey.count", 0 do
         @pirate = create_ninja_pirate

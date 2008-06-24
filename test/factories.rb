@@ -15,4 +15,4 @@ factory :pirate, {
 
 factory :ninja_pirate, {
   :catchphrase => "(silent)"
-}, :class => Pirate
+}, :class => Pirate, :chain => lambda{ valid_pirate_attributes( :monkey => nil ) }

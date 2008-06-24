@@ -41,7 +41,10 @@ module FactoriesAndWorkers
 
   class FactoryBuilder
     def initialize( factory, default_attrs, opts, from_klass, &block )
-      ar_klass = ActiveRecord.const_get( (opts[:class] || factory).to_s.classify )
+      raise ArgumentError, ":chain must be a lambda block!" if opts[:chain] && !opts[:chain].is_a?( Proc )
+      opts.reverse_merge!( :class => factory )
+      
+      ar_klass = ActiveRecord.const_get( opts[:class].to_s.classify )
       from_klass.factory_initializers[ factory ] = block if block_given?
 
       # make the valid attributes method      
@@ -51,6 +54,7 @@ module FactoriesAndWorkers
         attrs          = default_attrs.symbolize_keys
         attr_overrides = args.extract_options!
         attrs.merge!( attr_overrides.symbolize_keys ) if attr_overrides
+        attrs.reverse_merge!( opts[:chain].call ) if opts[:chain]
         attrs.each_pair do |key, value|
           if attr_overrides.keys.include?(:"#{key}_id")
             attrs.delete(key)   # if :#{model}_id is overridden, then remove :#{model} and don't evaluate the lambda block
@@ -62,7 +66,7 @@ module FactoriesAndWorkers
               send( :"#{action}_#{key}" )  # create or build model dependencies, if none are found in the db
             when String                # interpolate magic variables
               value.gsub( /\$UNIQ\((\d+)\)/ ){ from_klass.uniq( $1.to_i ) }.  
-              gsub( '$COUNT', from_klass.increment!( key ).to_s )
+              gsub( '$COUNT', from_klass.increment!( :"#{ar_klass}_#{key}" ).to_s )
             else
               value
             end
@@ -74,7 +78,9 @@ module FactoriesAndWorkers
       valid_attr_method  = :"valid_#{factory}_attribute"
       Factory::ClassMethods.send :define_method, valid_attr_method do |arg|
         return unless arg.is_a?( Symbol )
-        returning default_attrs[ arg ] do |value|
+        base = default_attrs.dup
+        base.reverse_merge!( opts[:chain].call ) if opts[:chain]
+        returning base[ arg ] do |value|
           value = value.call if value.is_a?( Proc )            # evaluate lambda if needed
         end
       end
