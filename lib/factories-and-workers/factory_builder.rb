@@ -8,8 +8,8 @@ module FactoriesAndWorkers
     end
     
     module ClassMethods
-      def factory( kind, default_attrs, &block )
-        FactoryBuilder.new( kind, default_attrs, self, &block )
+      def factory( kind, default_attrs, opts={}, &block )
+        FactoryBuilder.new( kind, default_attrs, opts, self, &block )
       end
 
       # creates a random hex string, converts it to hexatridecimal, and truncates to desired length (max 30)
@@ -40,8 +40,8 @@ module FactoriesAndWorkers
   end
 
   class FactoryBuilder
-    def initialize( factory, default_attrs, from_klass, &block )
-      ar_klass = ActiveRecord.const_get( factory.to_s.classify )
+    def initialize( factory, default_attrs, opts, from_klass, &block )
+      ar_klass = ActiveRecord.const_get( (opts[:class] || factory).to_s.classify )
       from_klass.factory_initializers[ factory ] = block if block_given?
 
       # make the valid attributes method      
@@ -58,8 +58,8 @@ module FactoriesAndWorkers
             attrs[key] = case value
             when Proc
               value.call               # evaluate lambda blocks
-            when :belongs_to_model  
-              send "#{action}_#{key}"  # create or build model dependencies
+            when :belongs_to_model
+              send( :"#{action}_#{key}" )  # create or build model dependencies, if none are found in the db
             when String                # interpolate magic variables
               value.gsub( /\$UNIQ\((\d+)\)/ ){ from_klass.uniq( $1.to_i ) }.  
               gsub( '$COUNT', from_klass.increment!( key ).to_s )

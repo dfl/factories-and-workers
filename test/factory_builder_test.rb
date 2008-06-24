@@ -17,57 +17,35 @@ class FactoryBuilderTest < Test::Unit::TestCase
     metaclass.class_eval do      
       factory :user, {
         :first_name => "Joe",
-        :last_name => "Blow"
+        :last_name  => "Blow"
       } do |u| u.email = "#{u.first_name}.#{u.last_name}@example.com".downcase end        
     end
     assert_equal "joe.doe@example.com", build_user( :last_name => 'Doe' ).email
   end
 
-  def test_build_monkey
+  def test_build_monkey_does_not_save
     assert_difference "Monkey.count", 0 do
       build_monkey
     end
   end 
 
-  def test_create_monkey
+  def test_create_monkey_does_save
     assert_difference "Monkey.count", 1 do
       create_monkey
     end
-  end
-
-  def test_uniq_interpolation
-    a = build_monkey.unique
-    b = build_monkey.unique
-    assert_not_equal a, b
-    assert_equal 10, a.length
-    assert_equal 10, b.length
-  end
-
-  def test_count_interpolation
-    a = build_monkey.counter.to_i
-    increment!(:foo)
-    b = build_monkey.counter.to_i
-    assert_equal b, a+1
-  end
-  
-  def test_increment!
-    a = build_monkey.number
-    b = build_monkey.number
-    assert_equal b, a+1
-    assert_equal increment!(:foo), b+1
   end
   
   def test_valid_monkey_attributes
     assert_equal( {:name => "George"}, remove_variability( valid_monkey_attributes ) )
   end
 
-  def test_valid_pirate_attributes_without_create
+  def test_valid_pirate_attributes_without_create_parents
     assert_difference "Monkey.count", 0 do
       valid_pirate_attributes( false )
     end
   end
   
-  def test_valid_pirate_attributes_with_create
+  def test_valid_pirate_attributes_with_create_parents
     assert_difference "Monkey.count", 1 do
       valid_pirate_attributes( true )
     end
@@ -77,12 +55,6 @@ class FactoryBuilderTest < Test::Unit::TestCase
     assert_difference "Monkey.count", 0 do
       assert_equal "Ahhrrrr, Matey!", valid_pirate_attribute(:catchphrase)
     end
-  end
-  
-  def test_default_attributes_alias
-    hash1 = remove_variability( valid_monkey_attributes )
-    hash2 = remove_variability( default_monkey_attributes )
-    assert_equal hash1, hash2
   end
 
   def test_build_pirate
@@ -104,16 +76,25 @@ class FactoryBuilderTest < Test::Unit::TestCase
     assert_not_equal create_pirate.updated_on.to_s, @pirate.updated_on.to_s
   end
 
+  def test_ninja_pirate
+    assert_difference "Pirate.count", 1 do
+      assert_difference "Monkey.count", 0 do
+        @pirate = create_ninja_pirate
+      end
+    end
+    assert_equal "(silent)", @pirate.catchphrase
+  end
+  
   def test_overridden_attributes
     @phil = create_monkey( :name => "Phil" )
-    assert_not_equal valid_monkey_attribute(:name), @phil.name
+    assert_not_equal valid_monkey_attribute(:name), @phil.name, "default monkey name should be overridden"
 
     assert_difference "Pirate.count", 0 do
       assert_difference "Monkey.count", 0 do
         @pirate = build_pirate( :monkey => @phil, :catchphrase => "chunky bacon!" )
       end
     end
-    assert_not_equal valid_pirate_attribute(:catchphrase), @pirate.catchphrase    
+    assert_not_equal valid_pirate_attribute(:catchphrase), @pirate.catchphrase, "default pirate catchphrase should be overridden"
     assert_equal "Phil", @pirate.monkey.name
     assert_equal "George", build_pirate.monkey.name
   end
@@ -123,14 +104,42 @@ class FactoryBuilderTest < Test::Unit::TestCase
       @pirate = build_pirate( :monkey_id => 1 )
     end
   end
+
+  def test_uniq_interpolation
+    a = build_monkey.unique
+    assert_equal 10, a.size
+
+    b = build_monkey.unique
+    assert_equal 10, b.size
+
+    assert_not_equal a, b
+  end
+
+  def test_count_interpolation_not_interfered_with_by_external_counter
+    assert_difference "build_monkey.counter.to_i", 1 do
+      increment!(:foo)
+    end
+  end
+  
+  def test_increment!
+    a = build_monkey.number
+    assert_equal a+1, build_monkey.number
+    assert_equal a+2, increment!(:foo)
+    assert_equal a+3, build_monkey.number
+  end
+  
+  def test_default_attributes_alias
+    hash1 = remove_variability( valid_monkey_attributes )
+    hash2 = remove_variability( default_monkey_attributes )
+    assert_equal hash1, hash2
+  end
   
   protected
 
   def remove_variability hash
+    variable_attributes = [:unique, :counter, :number]
     returning hash do
-      hash.delete(:unique)
-      hash.delete(:counter)
-      hash.delete(:number)
+      variable_attributes.each{ |a| hash.delete(a) }
     end
   end
 

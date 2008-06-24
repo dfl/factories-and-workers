@@ -32,14 +32,16 @@ module Factory
       case val[:type]
       when :integer
         123
-      when :string, :body
+      when :string, :text
         "SomeString".inspect
       when :float
         1.23
       when :date
-        "lambda{ Time.zone.today - 7 }"
+        "lambda{ 7.days.from_now }"
       when :datetime
-        "lambda{ Time.zone.now - 3600 }"
+        "lambda{ 12.hours.from_now }"
+      when :boolean
+        val[:default] || false
       end
     end
   end

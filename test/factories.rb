@@ -1,17 +1,18 @@
-# Test::Unit::TestCase.class_eval do
-  include FactoriesAndWorkers::Factory
-  
-  factory :monkey, {
-    :name    => "George",
-    :unique  => "$UNIQ(10)",
-    :counter => "$COUNT",
-    :number  => lambda{ increment! :foo }
-  }
+include FactoriesAndWorkers::Factory
 
-  factory :pirate, {
-    :catchphrase => "Ahhrrrr, Matey!",
-    :monkey      => :belongs_to_model,
-    :created_on  => lambda{ 1.day.ago }
-  }
+factory :monkey, {
+  :name    => "George",
+  :unique  => "$UNIQ(10)",
+  :counter => "$COUNT",
+  :number  => lambda{ increment! :foo }
+}
 
-# end
+factory :pirate, {
+  :catchphrase => "Ahhrrrr, Matey!",
+  :monkey      => :belongs_to_model,
+  :created_on  => lambda{ 1.day.ago }
+}
+
+factory :ninja_pirate, {
+  :catchphrase => "(silent)"
+}, :class => Pirate

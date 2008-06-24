@@ -42,6 +42,9 @@ A more complicated example:
     :number   => lambda { increment! :foo }         # increment a counter by arbitrary key
   }
 
+  factory :special_order,
+    valid_order_attributes.merge( :kind => 'Special' ),
+    :class => Order
 
 A value of :belongs_to_model on an attribute adds logic to call +create_+ or +build_+, appropriately.
 For example:
