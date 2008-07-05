@@ -1,6 +1,12 @@
+= Credits 
+
+Originally written by Nathan Herald @ Myobie.com 
+feature enhancements by David Lowenfels @ InternautDesign.com
+
 =The Factory
 
 The Factory idea was inspired completely by Dan Manges' blog post "Fixin' Fixtures with Factory" @ http://www.dcmanges.com/blog/38
+
 
 The Factory is a module that has three methods for each model: +build_model+, +create_model+ and +valid_model_attributes+.
 ( For semantic purposes, +default_model_attributes+ is also available as an alias to +valid_model_attributes+. )
