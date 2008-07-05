@@ -1,7 +1,8 @@
 = Credits 
 
-Originally written by Nathan Herald @ Myobie.com 
-feature enhancements by David Lowenfels @ InternautDesign.com
+Originally written by Nathan Herald @ Myobie.com
+
+Feature enhancements by David Lowenfels @ InternautDesign.com
 
 =The Factory
 
