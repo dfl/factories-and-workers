@@ -29,9 +29,9 @@ module FactoriesAndWorkers
     end
 
     # factory methods are defined as class methods; this delegation will allow them to also be called as instance methods
-    def method_missing method, *args
+    def method_missing method, *args, &block
       if self.class.respond_to?( method )
-        self.class.send method, *args
+        self.class.send method, *args, &block
       else
         super
       end
