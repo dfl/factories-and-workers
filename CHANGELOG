@@ -1,0 +1,5 @@
+* [08/05/2008] - 0.0.1 (gem release)
+  
+  Initial release as a gem.
+  
+  Removed some Rails specific code, but the gem is still dependent on activerecord.

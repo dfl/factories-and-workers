@@ -1,13 +1,1 @@
-if ENV['RAILS_ENV'] == 'test'
-
-  require 'factories-and-workers'
-  require 'fileutils'
-
-  config.after_initialize do
-    %w(spec/factories.rb spec/factory_workers.rb test/factories.rb test/factory_workers.rb).each do |file|
-      path = File.join(RAILS_ROOT, file)
-      require path if File.exists?(path)
-    end
-  end
-
-end
+require File.dirname(__FILE__)+'/rails/init.rb'
