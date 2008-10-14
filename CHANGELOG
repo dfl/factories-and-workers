@@ -1,3 +1,8 @@
+* [10/14/2008] - 0.0.2 (gem release)
+  
+  Fixed problem with rails/init.rb
+  
+  
 * [08/05/2008] - 0.0.1 (gem release)
   
   Initial release as a gem.

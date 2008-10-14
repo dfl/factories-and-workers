@@ -1,9 +1,9 @@
 Gem::Specification.new do |spec|
   spec.name = 'factories-and-workers'
-  spec.version = '0.0.1'
-  spec.date = '2008-08-13'
+  spec.version = '0.0.2'
+  spec.date = '2008-10-14'
   spec.summary = 'Fixtures replacement'
-  spec.email = 'and@prospectmarkets.com'
+  spec.email = 'david@internautdesign.com'
   spec.homepage = 'http://blog.internautdesign.com/2008/6/4/factories-and-workers-plugin'
   spec.description = 'Fixtures replacement'
   spec.has_rdoc = true
