@@ -10,9 +10,7 @@ Gemification by Jonathan Barket
 
 Add it as a gem dependency
 
-  config.after_initialize do
-    config.gem 'dfl-factories-and-workers', :lib => 'factories-and-workers', :source => 'http://gems.github.com' unless RAILS_ENV=='production'
-  end
+  config.gem 'dfl-factories-and-workers', :lib => 'factories-and-workers', :source => 'http://gems.github.com' unless RAILS_ENV=='production'
   
 Or install it as a gem manually  
   
