@@ -10,7 +10,9 @@ Minor improvements by Jonathan Barket
 
 Add it as a gem dependency
 
-  config.gem 'dfl-factories-and-workers', :lib => 'factories-and-workers', :source => 'http://gems.github.com'
+  config.after_initialize do
+    config.gem 'dfl-factories-and-workers', :lib => 'factories-and-workers', :source => 'http://gems.github.com' unless RAILS_ENV=='production'
+  end
   
 Or install it as a gem manually  
   

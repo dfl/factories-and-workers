@@ -12,12 +12,16 @@ if defined?(RAILS_ENV) && __FILE__ =~ %r{vendor/plugins} # are we running as a r
     require File.dirname(__FILE__)+"/rails/init.rb"
   end
 
-  # NOTE: if using as a gem with Rails and you want similar behaviour as above, do something like this in environment.rb :
-  # config.gem 'factories-and-workers', :source => 'http://gems.github.com' unless RAILS_ENV=='production'
 
 else  # bootstrap the gem
 
-  require "factories-and-workers"  
+  require "factories-and-workers"
+  require File.dirname(__FILE__)+"/rails/init.rb" if defined?(RAILS_ENV)
+
+  # NOTE: if using as a gem with Rails and you want similar behaviour as above, do something like this in environment.rb :
+  # config.after_initialize do
+  #   config.gem 'dfl-factories-and-workers', :lib => 'factories-and-workers', :source => 'http://gems.github.com' unless RAILS_ENV=='production'
+  # end
 
 end  
 
