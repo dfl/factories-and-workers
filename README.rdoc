@@ -4,7 +4,7 @@ Originally written by Nathan Herald @ Myobie.com
 
 Feature enhancements by David Lowenfels @ InternautDesign.com
 
-Minor improvements by Jonathan Barket
+Gemification by Jonathan Barket
 
 == Get It
 

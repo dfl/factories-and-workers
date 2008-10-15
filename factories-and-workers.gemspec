@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name = 'factories-and-workers'
-  spec.version = '0.0.2'
+  spec.version = '0.0.3'
   spec.date = '2008-10-14'
   spec.summary = 'Fixtures replacement'
   spec.email = 'david@internautdesign.com'
