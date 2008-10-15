@@ -11,12 +11,12 @@ ENV["RAILS_ENV"] = "test"
 require File.expand_path(File.join(app_root, "config", "boot"))
 $:.unshift(File.expand_path(File.join(plugin_root, "lib")))
 
-# initialize the plugin
-require plugin_root + "/init"
 
 # pull in just what we need from Rails
 %w( active_record active_support ).each { |f| require f }
 
+# initialize the plugin
+require plugin_root + "/lib/factories-and-workers"
 
 # we'll use a totally standalone db for our testing
 options = { :adapter => "sqlite3", :timeout => 500, :database => ":memory:" }

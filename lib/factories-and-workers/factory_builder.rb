@@ -5,6 +5,16 @@ module FactoriesAndWorkers
   module Factory
     def self.included( base )
       base.extend ClassMethods          
+
+      # factory methods are defined as class methods; this delegation will allow them to also be called as instance methods
+      def method_missing method, *args, &block
+        if ClassMethods.method_defined?(method)
+          self.class.send method, *args, &block
+        else
+          super
+        end
+      end
+
     end
     
     module ClassMethods
@@ -25,15 +35,6 @@ module FactoriesAndWorkers
       @@factory_initializers = {}
       def factory_initializers
         @@factory_initializers
-      end
-    end
-
-    # factory methods are defined as class methods; this delegation will allow them to also be called as instance methods
-    def method_missing method, *args, &block
-      if self.class.respond_to?( method )
-        self.class.send method, *args, &block
-      else
-        super
       end
     end
 
