@@ -34,11 +34,7 @@ It will be loaded during plugin initialization (see init.rb). You could also exp
 
 A minimal factories.rb file:
 
-module TestFactories   # NOTE: this module namespace is a new addition from v0.1.1 onwards
-  include FactoriesAndWorkers::Factory    # mixin to Object, which is especially useful for script/console work; season to taste.
-
   factory :user, :name => "default name"
-end
 
 This would define methods named +build_user+, +create_user+, and +valid_user_attributes+ to be available in any Object in the project.
 If you wanted to override the default valid attributes, you could call:
