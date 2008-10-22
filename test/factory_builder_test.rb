@@ -10,7 +10,7 @@ class FactoryBuilderTest < Test::Unit::TestCase
         factory :foo, {}
       end
     end
-    assert_equal "uninitialized constant ActiveRecord::Foo", e.message
+    assert_equal "uninitialized constant Foo", e.message
   end
 
   def test_factory_with_initializer

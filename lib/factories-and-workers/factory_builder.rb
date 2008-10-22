@@ -2,15 +2,16 @@ require 'digest/sha1'
 
 module FactoriesAndWorkers
 
-  module Factory
-    
-    module ClassMethods
+  module Factory    
+    def self.included( base )
+
       def factory( kind, default_attrs, opts={}, &block )
         FactoryBuilder.new( kind, default_attrs, opts, self, &block )
       end
 
       # creates a random hex string, converts it to hexatridecimal, and truncates to desired length (max 30)
       def uniq len=10
+        raise ArgumentError, "Factory::uniq - length must be <= 30" if len > 30
         Digest::SHA1.hexdigest("#{rand(1<<64)}/#{Time.now.to_f}/#{Process.pid}").to_i(16).to_s(36)[1..len]
       end
 
@@ -23,21 +24,8 @@ module FactoriesAndWorkers
       def factory_initializers
         @@factory_initializers
       end
+
     end
-
-    def self.included( base )
-      base.extend ClassMethods          
-
-      # factory methods are defined as class methods; this delegation will allow them to also be called as instance methods
-      def method_missing method, *args, &block
-        if ClassMethods.method_defined?(method)
-          self.class.send method, *args, &block
-        else
-          super
-        end
-      end
-    end
-
   end
 
   class FactoryBuilder
@@ -45,12 +33,12 @@ module FactoriesAndWorkers
       raise ArgumentError, ":chain must be a lambda block!" if opts[:chain] && !opts[:chain].is_a?( Proc )
       opts.reverse_merge!( :class => factory )
 
-      ar_klass = opts[:class].camelize.constantize
+      ar_klass = opts[:class].to_s.camelize.constantize
       from_klass.factory_initializers[ factory ] = block if block_given?
 
       # make the valid attributes method      
       valid_attrs_method = :"valid_#{factory}_attributes"
-      Factory::ClassMethods.send :define_method, valid_attrs_method do |*args|
+      Factory.send :define_method, valid_attrs_method do |*args|
         action         = args.first.is_a?( TrueClass ) ? :create : :build
         attrs          = default_attrs.symbolize_keys
         attr_overrides = args.extract_options!
@@ -77,7 +65,7 @@ module FactoriesAndWorkers
 
       # make the valid attribute method, which only fetches a single attribute
       valid_attr_method  = :"valid_#{factory}_attribute"
-      Factory::ClassMethods.send :define_method, valid_attr_method do |arg|
+      Factory.send :define_method, valid_attr_method do |arg|
         return unless arg.is_a?( Symbol )
         base = default_attrs.dup
         base.reverse_merge!( opts[:chain].call ) if opts[:chain]
@@ -87,21 +75,21 @@ module FactoriesAndWorkers
       end
 
       # alias default_*_attributes to valid_*_attributes, for semantic equivalency
-      Factory::ClassMethods.send :alias_method, valid_attrs_method.to_s.gsub('valid','default').to_sym, valid_attrs_method
-      Factory::ClassMethods.send :alias_method,  valid_attr_method.to_s.gsub('valid','default').to_sym, valid_attr_method
+      Factory.send :alias_method, valid_attrs_method.to_s.gsub('valid','default').to_sym, valid_attrs_method
+      Factory.send :alias_method,  valid_attr_method.to_s.gsub('valid','default').to_sym, valid_attr_method
 
 
       after_initialize_block = from_klass.factory_initializers[ factory ]
 
       # make the create method
-      Factory::ClassMethods.send :define_method, :"create_#{factory}" do |*args|
+      Factory.send :define_method, :"create_#{factory}" do |*args|
         ar_klass.create!( self.send( valid_attrs_method, true, args.first ) ) do |obj|
           after_initialize_block.call( obj ) if after_initialize_block
         end
       end
 
       # make the build method
-      Factory::ClassMethods.send :define_method, :"build_#{factory}" do |*args|
+      Factory.send :define_method, :"build_#{factory}" do |*args|
         ar_klass.new( self.send( valid_attrs_method, false, args.first ) ) do |obj|
           after_initialize_block.call( obj ) if after_initialize_block
         end
