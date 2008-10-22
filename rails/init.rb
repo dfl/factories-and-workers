@@ -2,12 +2,12 @@ require 'fileutils'
 
 config.after_initialize do
 
-  if script_console_running = defined?(::IRB) && ::IRB.conf[:LOAD_MODULES] && ::IRB.conf[:LOAD_MODULES].include?('console_with_helpers')
-    # mixin to Object if we are running in ./script/console
+  # if script_console_running = defined?(::IRB) && ::IRB.conf[:LOAD_MODULES] && ::IRB.conf[:LOAD_MODULES].include?('console_with_helpers')
+  #   # mixin to Object if we are running in ./script/console
     obj = Object
-  else # otherwise just mix into Test::Unit to play it safe
-    obj = Test::Unit::TestCase
-  end
+  # else # otherwise just mix into Test::Unit to play it safe
+  #   obj = Test::Unit::TestCase
+  # end
 
   # mixin plugin
   obj.send :include, FactoriesAndWorkers::Factory
