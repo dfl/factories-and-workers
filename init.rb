@@ -1,6 +1,6 @@
 if defined?(RAILS_ENV) && __FILE__ =~ %r{vendor/plugins} # are we running as a rails plugin?
 
-# Modify the variable below to specify in which environments this plugin should be loaded.
+  # Modify the variable below to specify in which environments this plugin should be loaded.
   load_plugin_in = {
     'test'        => true,
     'development' => true,   # NOTE: often comes in handy in the console
@@ -24,5 +24,3 @@ else  # bootstrap the gem
   # end
 
 end  
-
-
