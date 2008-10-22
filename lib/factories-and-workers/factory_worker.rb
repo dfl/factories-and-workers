@@ -5,6 +5,12 @@ module FactoriesAndWorkers
       FactoryWorker.find_and_work worker_name
     end
 
+    module ClassMethods
+      def factory_worker( worker, &block )
+        FactoryWorker.new( worker, &block )
+      end
+    end
+
     def self.included( base )
       base.extend ClassMethods
       # factory_worker methods are defined as class methods; this delegation will allow them to also be called as instance methods
@@ -14,12 +20,6 @@ module FactoriesAndWorkers
         else
           super
         end
-      end
-    end
-
-    module ClassMethods
-      def factory_worker( worker, &block )
-        FactoryWorker.new( worker, &block )
       end
     end
 

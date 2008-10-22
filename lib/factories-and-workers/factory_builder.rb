@@ -3,19 +3,6 @@ require 'digest/sha1'
 module FactoriesAndWorkers
 
   module Factory
-    def self.included( base )
-      base.extend ClassMethods          
-
-      # factory methods are defined as class methods; this delegation will allow them to also be called as instance methods
-      def method_missing method, *args, &block
-        if ClassMethods.method_defined?(method)
-          self.class.send method, *args, &block
-        else
-          super
-        end
-      end
-
-    end
     
     module ClassMethods
       def factory( kind, default_attrs, opts={}, &block )
@@ -38,14 +25,27 @@ module FactoriesAndWorkers
       end
     end
 
+    def self.included( base )
+      base.extend ClassMethods          
+
+      # factory methods are defined as class methods; this delegation will allow them to also be called as instance methods
+      def method_missing method, *args, &block
+        if ClassMethods.method_defined?(method)
+          self.class.send method, *args, &block
+        else
+          super
+        end
+      end
+    end
+
   end
 
   class FactoryBuilder
     def initialize( factory, default_attrs, opts, from_klass, &block )
       raise ArgumentError, ":chain must be a lambda block!" if opts[:chain] && !opts[:chain].is_a?( Proc )
       opts.reverse_merge!( :class => factory )
-      
-      ar_klass = ActiveRecord.const_get( opts[:class].to_s.classify )
+
+      ar_klass = opts[:class].camelize.constantize
       from_klass.factory_initializers[ factory ] = block if block_given?
 
       # make the valid attributes method      
