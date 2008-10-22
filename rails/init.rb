@@ -2,7 +2,7 @@ require 'fileutils'
 
 config.after_initialize do
 
-  unless $*.grep(/db:*/)  # prevent the plugin from loading if we are simply running rake db:migrate, etc.
+  if $*.grep(/db:*/).empty?  # prevent the plugin from loading if we are simply running rake db:migrate, etc.
     
     # if script_console_running = defined?(::IRB) && ::IRB.conf[:LOAD_MODULES] && ::IRB.conf[:LOAD_MODULES].include?('console_with_helpers')
     #   # mixin to Object if we are running in ./script/console
