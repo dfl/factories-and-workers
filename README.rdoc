@@ -95,7 +95,9 @@ Factories also really come in handy in the development console. The plugin and f
 
 =The FactoryWorker
 
-The FactoryWorker is a work in progress. It currently doesn't execute in the same scope/binding as where it's called from, which means instance variables aren't shared :(
+The FactoryWorker is a work in progress and is not automatically loaded with init.rb.
+Ideally it would behave sort of like a fixture scenario. Anyone want to help make this happen?
+It currently doesn't execute in the same scope/binding as where it's called from, which means instance variables aren't shared :(
 
 If you create a file named 'factory_workers.rb' in either your spec or test directory, you can define snippets of code that can be ran at anytime, anywhere in your tests (this may not be true in the future, I may limit where it can be run, iono). 
 

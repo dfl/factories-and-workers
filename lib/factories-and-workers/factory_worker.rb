@@ -11,6 +11,7 @@ module FactoriesAndWorkers
       end
     end
 
+    # FIXME TODO: remove this method missing... it's terrible to use with an Object-level mixin
     def self.included( base )
       base.extend ClassMethods
       # factory_worker methods are defined as class methods; this delegation will allow them to also be called as instance methods
