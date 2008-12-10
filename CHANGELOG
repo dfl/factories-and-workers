@@ -1,3 +1,8 @@
+* [12/10/2008] - 0.1.6
+  
+  Disabling Workers for now because the method missing causes problems with ./script/generate,
+  and workers are not that useful in their current state.
+
 * [10/22/2008] - 0.1.4
   
   Prevent rails/init from loading factories.rb, etc. if inside rake db:*

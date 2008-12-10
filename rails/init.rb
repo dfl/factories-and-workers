@@ -13,7 +13,7 @@ config.after_initialize do
 
     # mixin plugin
     obj.send :include, FactoriesAndWorkers::Factory
-    obj.send :include, FactoriesAndWorkers::Worker
+    # obj.send :include, FactoriesAndWorkers::Worker
 
     # load factory and worker definition files if they exist
     %w(spec/factories.rb spec/factory_workers.rb test/factories.rb test/factory_workers.rb).each do |file|
